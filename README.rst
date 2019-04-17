@@ -1,5 +1,10 @@
-python-slackclient
-===================
+python-slackclient-remix
+========================
+
+    ⚠️This project is experimental and not meant to be used in actual applications.
+
+A fork of ``python-slackclient``, used to explore alternative solutions to present issues. The following infomration may
+be incorrect or out of date as this project develops.
 
 A client for Slack, which supports the Slack Web API and Real Time Messaging (RTM) API.
 
