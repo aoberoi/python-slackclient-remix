@@ -9,8 +9,7 @@ solutions to present issues. The following information may be incorrect or out o
 
 A client for Slack, which supports the Slack Web API and Real Time Messaging (RTM) API.
 
-[![Build Status](https://travis-ci.org/aoberoi/python-slackclient-remix.svg?branch=master)](https://travis-ci.org/aoberoi/python-slackclient-remix)
-[![Windows build status](https://ci.appveyor.com/api/projects/status/s8asbg8swvsmeutg?svg=true)](https://ci.appveyor.com/project/aoberoi/python-slackclient-remix)
+[![Build Status](https://travis-ci.com/aoberoi/python-slackclient-remix.svg?branch=master)](https://travis-ci.org/aoberoi/python-slackclient-remix)
 [![codecov](https://codecov.io/gh/aoberoi/python-slackclient-remix/branch/master/graph/badge.svg)](https://codecov.io/gh/aoberoi/python-slackclient-remix)
 
 ## Overview
