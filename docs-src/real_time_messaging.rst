@@ -1,9 +1,9 @@
 .. _real-time-messaging:
 
 ==============================================
-Real Time Messaging
+Real Time Messaging (RTM)
 ==============================================
-The `Real Time Messaging API`_ is a WebSocket-based API that allows you to
+The `Real Time Messaging (RTM) API`_ is a WebSocket-based API that allows you to
 receive events from Slack in real time and send messages as users.
 
 If you prefer events to be pushed to you instead, we recommend using the
@@ -13,7 +13,7 @@ in `the Events API <https://api.slack.com/events/api>`_.
 
 See :ref:`Tokens & Authentication <handling-tokens>` for API token handling best practices.
 
-Connecting to the Real Time Messaging API
+Connecting to the RTM API
 ------------------------------------------
 ::
 
@@ -23,11 +23,11 @@ Connecting to the Real Time Messaging API
   sc = SlackClient(slack_token)
 
   if sc.rtm_connect():
-      while True:
+    while sc.server.connected is True:
           print sc.rtm_read()
           time.sleep(1)
   else:
-      print "Connection Failed, invalid token?"
+      print "Connection Failed"
 
 If you connect successfully the first event received will be a hello:
 ::
@@ -46,6 +46,36 @@ If there was a problem connecting an error will be returned, including a descrip
       u'msg': u'Socket URL has expired'
     }
   }
+
+rtm.start vs rtm.connect
+---------------------------
+
+If you expect your app to be used on large teams, we recommend starting the RTM client with `rtm.connect` rather than the default connection method for this client, `rtm.start`.
+`rtm.connect` provides a lighter initial connection payload, without the team's channel and user information included. You'll need to request channel and user info via
+the Web API separately.
+
+To do this, simply pass `with_team_state=False` into the `rtm_connect` call, like so:
+::
+
+  from slackclient import SlackClient
+
+  slack_token = os.environ["SLACK_API_TOKEN"]
+  sc = SlackClient(slack_token)
+
+  if sc.rtm_connect(with_team_state=False):
+      while True:
+          print sc.rtm_read()
+          time.sleep(1)
+  else:
+      print "Connection Failed"
+
+
+Passing `auto_reconnect=True` will tell the websocket client to automatically reconnect if the connection gets dropped.
+
+
+See the `rtm.start docs <https://api.slack.com/methods/rtm.start>`_ and the `rtm.connect docs <https://api.slack.com/methods/rtm.connect>`_
+for more details.
+
 
 RTM Events
 -------------

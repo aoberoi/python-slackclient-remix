@@ -1,18 +1,68 @@
-sudo: false
 language: python
-python:
-  - "3.5"
 env:
-  matrix:
-    - TOX_ENV=py27
-    - TOX_ENV=py34
-    - TOX_ENV=py35
-    - TOX_ENV=flake8
-cache: pip
+matrix:
+  include:
+    - name: "Python 2.7 on Xenial Linux"
+      python: "2.7"
+      dist: xenial
+    - name: "Python 3.4 on Xenial Linux"
+      python: "3.4"
+      dist: xenial
+    - name: "Python 3.5 on Xenial Linux"
+      python: "3.5"
+      dist: xenial
+    - name: "Python 3.6 on Xenial Linux"
+      python: "3.6"
+      dist: xenial
+    - name: "Python 3.7 on Xenial Linux"
+      python: "3.7"
+      dist: xenial
+    - name: "Python 3.8 development on Xenial Linux"
+      python: "3.8-dev"
+      dist: xenial
+      env: STABILITY=dev
+    - name: "Python 2.7 on Windows"
+      os: windows
+      language: shell
+      before_install: choco install python2
+      env: PATH=/c/Python27:/c/Python27/Scripts:$PATH
+    - name: "Python 3.4 on Windows"
+      os: windows
+      language: shell
+      before_install: choco install python --version 3.4.4.20180111
+      env: PATH=/c/Python34:/c/Python34/Scripts:$PATH
+    - name: "Python 3.5 on Windows"
+      os: windows
+      language: shell
+      before_install: choco install python --version 3.5.2.20161029
+      env: PATH=/c/Python35:/c/Python35/Scripts:$PATH
+    - name: "Python 3.6 on Windows"
+      os: windows
+      language: shell
+      before_install: choco install python --version 3.6.8
+      env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
+    - name: "Python 3.7 on Windows"
+      os: windows
+      language: shell
+      before_install: choco install python --version 3.7.3
+      env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    - name: "Python 3.8 development on Windows"
+      os: windows
+      language: shell
+      before_install: choco install python --pre
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+  allow_failures:
+    - language: python
+      env: STABILITY=dev
+    - language: shell
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+  fast_finish: true
 install:
-  - "travis_retry pip install setuptools --upgrade"
-  - "travis_retry pip install tox"
+  - travis_retry pip install -r requirements.txt
+  - travis_retry pip install flake8
+  - travis_retry pip install -r test_requirements.txt
 script:
-  - tox -e $TOX_ENV
-after_script:
-  - cat .tox/$TOX_ENV/log/*.log
+  - flake8 slackclient
+  - py.test --cov-report= --cov=slackclient tests
+after_success:
+  - codecov -e $TRAVIS_PYTHON_VERSION

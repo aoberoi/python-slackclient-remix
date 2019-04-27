@@ -30,7 +30,7 @@ To send a message to a channel, use the channel's ID. For IMs, use the user's ID
 
   sc.api_call(
     "chat.postMessage",
-    channel="#python",
+    channel="C0XXXXXX",
     text="Hello from Python! :tada:"
   )
 
@@ -38,10 +38,78 @@ There are some unique options specific to sending IMs, so be sure to read the **
 section of the `chat.postMessage <https://api.slack.com/methods/chat.postMessage#channels>`_
 page for a full list of formatting and authorship options.
 
+Sending an ephemeral message, which is only visible to an assigned user in a specified channel, is nearly the same 
+as sending a regular message, but with an additional ``user`` parameter.
+
+.. code-block:: python
+
+  from slackclient import SlackClient
+
+  slack_token = os.environ["SLACK_API_TOKEN"]
+  sc = SlackClient(slack_token)
+
+  sc.api_call(
+    "chat.postEphemeral",
+    channel="C0XXXXXX",
+    text="Hello from Python! :tada:",
+    user="U0XXXXXXX"
+  )
+
+See `chat.postEphemeral <https://api.slack.com/methods/chat.postEphemeral>`_ for more info.
+
+--------
+
+Customizing a message's layout
+-----------------------
+The chat.postMessage method takes an optional blocks argument that allows you to customize the layout of a message. 
+Blocks for Web API methods are all specified in a single object literal, so just add additional keys for any optional argument.
+
+To send a message to a channel, use the channel's ID. For IMs, use the user's ID.
+
+.. code-block:: python
+
+  sc.api_call(
+    "chat.postMessage",
+    channel="C0XXXXXX",
+    blocks=[
+      {
+          "type": "section",
+          "text": {
+              "type": "mrkdwn",
+              "text": "Danny Torrence left the following review for your property:"
+          }
+      },
+      {
+          "type": "section",
+          "text": {
+              "type": "mrkdwn",
+              "text": "<https://example.com|Overlook Hotel> \n :star: \n Doors had too many axe holes, guest in room " +
+              "237 was far too rowdy, whole place felt stuck in the 1920s."
+          },
+          "accessory": {
+              "type": "image",
+              "image_url": "https://images.pexels.com/photos/750319/pexels-photo-750319.jpeg",
+              "alt_text": "Haunted hotel image"
+          }
+      },
+      {
+          "type": "section",
+          "fields": [
+              {
+                  "type": "mrkdwn",
+                  "text": "*Average Rating*\n1.0"
+              }
+          ]
+      }
+    ]
+  )
+
+**Note:** You can use the `Block Kit Builder <https://api.slack.com/tools/block-kit-builder>`for a playground where you can prototype your message's look and feel.
+
 --------
 
 Replying to messages and creating threads
------------------------
+------------------------------------------
 Threaded messages are just like regular messages, except thread replies are grouped together to provide greater context
 to the user. You can reply to a thread or start a new threaded conversation by simply passing the original message's ``ts``
 ID in the ``thread_ts`` attribute when posting a message. If you're replying to a threaded message, you'll pass the `thread_ts`
@@ -60,7 +128,7 @@ appear directly in the channel, instead relegated to a kind of forked timeline d
 
   sc.api_call(
     "chat.postMessage",
-    channel="#python",
+    channel="C0XXXXXX",
     text="Hello from Python! :tada:",
     thread_ts="1476746830.000003"
   )
@@ -78,7 +146,7 @@ set the ``reply_broadcast`` boolean parameter to ``True``.
 
   sc.api_call(
     "chat.postMessage",
-    channel="#python",
+    channel="C0XXXXXX",
     text="Hello from Python! :tada:",
     thread_ts="1476746830.000003",
     reply_broadcast=True
@@ -291,4 +359,77 @@ Get a list of team members
 
 See `users.list <https://api.slack.com/methods/users.list>`_ for more info.
 
+
+--------
+
+Uploading files
+------------------------------
+
+.. code-block:: python
+
+  from slackclient import SlackClient
+
+  slack_token = os.environ["SLACK_API_TOKEN"]
+  sc = SlackClient(slack_token)
+
+  with open('thinking_very_much.png') as file_content:
+      sc.api_call(
+          "files.upload",
+          channels="C3UKJTQAC",
+          file=file_content,
+          title="Test upload"
+      )
+
+See `files.upload <https://api.slack.com/methods/files.upload>`_ for more info.
+
+
+--------
+
+Web API Rate Limits
+--------------------
+Slack allows applications to send no more than one message per second. We allow bursts over that
+limit for short periods. However, if your app continues to exceed the limit over a longer period
+of time it will be rate limited.
+
+Here's a very basic example of how one might deal with rate limited requests.
+
+If you go over these limits, Slack will start returning a HTTP 429 Too Many Requests error,
+a JSON object containing the number of calls you have been making, and a Retry-After header
+containing the number of seconds until you can retry.
+
+
+.. code-block:: python
+
+  from slackclient import SlackClient
+  import time
+
+  slack_token = os.environ["SLACK_API_TOKEN"]
+  sc = SlackClient(slack_token)
+
+  # Simple wrapper for sending a Slack message
+  def send_slack_message(channel, message):
+    return sc.api_call(
+      "chat.postMessage",
+      channel=channel,
+      text=message
+    )
+
+  # Make the API call and save results to `response`
+  response = send_slack_message("C0XXXXXX", "Hello, from Python!")
+
+  # Check to see if the message sent successfully.
+  # If the message succeeded, `response["ok"]`` will be `True`
+  if response["ok"]:
+    print("Message posted successfully: " + response["message"]["ts"])
+    # If the message failed, check for rate limit headers in the response
+  elif response["ok"] is False and response["headers"]["Retry-After"]:
+    # The `Retry-After` header will tell you how long to wait before retrying
+    delay = int(response["headers"]["Retry-After"])
+    print("Rate limited. Retrying in " + str(delay) + " seconds")
+    time.sleep(delay)
+    send_slack_message(message, channel)
+
+See the documentation on `Rate Limiting <https://api.slack.com/docs/rate-limits>`_ for more info.
+
 .. include:: metadata.rst
+

@@ -8,8 +8,8 @@ What even is |product_name| and why should I care?
 |product_name| is a wrapper around commonly accessed parts of the Slack Platform. It provides basic mechanisms for
 using the Slack Web API from within your Python app.
 
-On the other hand, |product_name| does not provide access to the RTM or Events bot-building APIs, although we anticipate
-adding support for these in the future.
+On the other hand, |product_name| does not provide access to the Events bot-building API, but
+[this adapter](https://github.com/slackapi/python-slack-events-api) does.
 
 OMG I found a bug!
 ******************
@@ -49,18 +49,12 @@ How do I compile the documentation?
 ***********************************
 
 This project's documentation is generated with `Sphinx <http://www.sphinx-doc.org>`_. If you are editing one of the many
-reStructuredText files in the ``docs-src`` folder, you'll need to rebuild the documentation. First, install the project's
-development dependencies (ideally using `virtualenv <https://virtualenv.pypa.io>`_.
+reStructuredText files in the ``docs-src`` folder, you'll need to rebuild the documentation. It is recommended to run
+the following steps inside a ``virtualenv`` environment.
 
 .. code-block:: bash
 
-  pip install -r requirements.txt -r requirements-dev.text
-
-Then run Sphinx.
-
-.. code-block:: bash
-
-  sphinx-build -c ./docs-src/_themes/slack/ -b html docs-src docs
+  tox -e docs
 
 
 Do be sure to add the ``docs`` folder and its contents to your pull request!
