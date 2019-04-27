@@ -234,9 +234,10 @@ class Server(object):
         """
         try:
             data = json.dumps(data)
-            self.websocket.send(data)
+            return self.websocket.send(data)
         except Exception:
             self.rtm_connect(reconnect=True)
+        return None
 
     def rtm_send_message(self, channel, message, thread=None, reply_broadcast=None):
         """
@@ -263,8 +264,26 @@ class Server(object):
 
         self.send_to_websocket(message_json)
 
-    def ping(self):
-        return self.send_to_websocket({"type": "ping"})
+    def ping(self, ping_id=None, **kwargs):
+        """ Send a ping message over the websocket. ping accepts any
+        key-value pair and returns those values with the pong response
+        :Args:
+            pingid (Optional[int]): The id of the ping. The reply_to
+                value of the response pong will use this value. This
+                argument takes priority of the id key in kwargs, if
+                present.
+        :Kwargs:
+            (Optional) Any kwy:value pairs to be included in the ping.
+        :Example:
+            sc.server.ping(1234, timestamp=time.time())
+        :Returns:
+            (id, bytes_sent) tuple. If bytes_sent is None, the send
+                failed.
+        """
+        if ping_id:
+            kwargs["id"] = ping_id
+        kwargs["type"] = "ping"
+        return kwargs.get("id"), self.send_to_websocket(kwargs)
 
     def websocket_safe_read(self):
         """
