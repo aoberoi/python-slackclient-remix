@@ -1,5 +1,8 @@
 # slackclient-remix
 
+[![Build Status](https://travis-ci.com/aoberoi/python-slackclient-remix.svg?branch=master)](https://travis-ci.com/aoberoi/python-slackclient-remix)
+[![codecov](https://codecov.io/gh/aoberoi/python-slackclient-remix/branch/master/graph/badge.svg)](https://codecov.io/gh/aoberoi/python-slackclient-remix)
+
 > ⚠️This project is experimental and not meant to be used in actual applications.
 
 This is a fork of [`slackclient`](https://github.com/slackapi/python-slackclient), and its used to explore alternative
@@ -8,9 +11,6 @@ solutions to present issues. The following information may be incorrect or out o
 ---
 
 A client for Slack, which supports the Slack Web API and Real Time Messaging (RTM) API.
-
-[![Build Status](https://travis-ci.com/aoberoi/python-slackclient-remix.svg?branch=master)](https://travis-ci.org/aoberoi/python-slackclient-remix)
-[![codecov](https://codecov.io/gh/aoberoi/python-slackclient-remix/branch/master/graph/badge.svg)](https://codecov.io/gh/aoberoi/python-slackclient-remix)
 
 ## Overview
 
