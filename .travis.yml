@@ -1,4 +1,5 @@
 language: python
+env:
 matrix:
   include:
     - name: "Python 2.7 on Xenial Linux"
@@ -19,6 +20,7 @@ matrix:
     - name: "Python 3.8 development on Xenial Linux"
       python: "3.8-dev"
       dist: xenial
+      env: STABILITY=dev
     - name: "Python 2.7 on Windows"
       os: windows
       language: shell
@@ -49,6 +51,12 @@ matrix:
       language: shell
       before_install: choco install python --pre
       env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+  allow_failures:
+    - language: python
+      env: STABILITY=dev
+    - language: shell
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+  fast_finish: true
 install:
   - travis_retry pip install -r requirements.txt
   - travis_retry pip install flake8
