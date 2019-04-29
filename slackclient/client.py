@@ -8,7 +8,6 @@ import time
 from .server import Server
 from .exceptions import ParseResponseError, TokenRefreshError
 
-
 LOG = logging.getLogger(__name__)
 
 
@@ -139,8 +138,9 @@ class SlackClient(object):
         try:
             self.server.rtm_connect(use_rtm_start=with_team_state, **kwargs)
             return self.server.connected
-        except Exception:
-            LOG.warn("Failed RTM connect", exc_info=True)
+        except Exception as e:
+            LOG.warn("Failed RTM connect")
+            LOG.exception(e)
             return False
 
     def api_call(self, method, timeout=None, **kwargs):

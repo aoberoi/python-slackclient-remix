@@ -14,6 +14,8 @@ from ssl import SSLError
 from websocket import create_connection
 from websocket._exceptions import WebSocketConnectionClosedException
 
+LOG = logging.getLogger(__name__)
+
 
 class Server(object):
     """
@@ -115,7 +117,7 @@ class Server(object):
             # Raise a SlackConnectionError after 5 retries within 3 minutes
             recon_count = self.reconnect_count
             if recon_count == 5:
-                logging.error("RTM connection failed, reached max reconnects.")
+                LOG.error("RTM connection failed, reached max reconnects.")
                 raise SlackConnectionError(
                     "RTM connection failed, reached max reconnects."
                 )
@@ -127,7 +129,7 @@ class Server(object):
                     retry_timeout = (
                         backoff_offset_multiplier * recon_count * recon_count
                     )
-                    logging.debug("Reconnecting in %d seconds", retry_timeout)
+                    LOG.debug("Reconnecting in %d seconds", retry_timeout)
 
                     time.sleep(retry_timeout)
                 self.reconnect_count += 1
@@ -142,9 +144,7 @@ class Server(object):
             if self.rtm_connect_retries < 5 and reply.status_code == 429:
                 self.rtm_connect_retries += 1
                 retry_after = int(reply.headers.get("retry-after", 120))
-                logging.debug(
-                    "HTTP 429: Rate limited. Retrying in %d seconds", retry_after
-                )
+                LOG.debug("HTTP 429: Rate limited. Retrying in %d seconds", retry_after)
                 time.sleep(retry_after)
                 self.rtm_connect(reconnect=reconnect, timeout=timeout)
             else:
@@ -193,9 +193,10 @@ class Server(object):
             )
             self.connected = True
             self.last_connected_at = time.time()
-            logging.debug("RTM connected")
+            LOG.debug("RTM connected")
             self.websocket.sock.setblocking(0)
         except Exception as e:
+            LOG.exception(e)
             self.connected = False
             raise SlackConnectionError(message=str(e))
 
@@ -235,7 +236,8 @@ class Server(object):
         try:
             data = json.dumps(data)
             return self.websocket.send(data)
-        except Exception:
+        except Exception as e:
+            LOG.exception(e)
             self.rtm_connect(reconnect=True)
         return None
 
@@ -306,7 +308,7 @@ class Server(object):
                     return ""
                 raise
             except WebSocketConnectionClosedException:
-                logging.debug("RTM disconnected")
+                LOG.debug("RTM disconnected")
                 self.connected = False
                 if self.auto_reconnect:
                     self.rtm_connect(reconnect=True)
